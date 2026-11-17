@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Actas · Junto</title>
+<meta name="description" content="Transcripción y resumen de reuniones · Junto · Círculo de Ciencias Políticas · UCEMA">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2A1F17">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Actas Junto">
+<style>
+  :root{
+    --nogal:#2A1F17; --cuero:#5B3A26; --salvia:#B4C8A8; --musgo:#3F5A3A; --papel:#F2F0E7;
+    --lacre:#8A3D2B; --ocre:#8A6222; --verdemar:#3F6B5C;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; color:var(--nogal); font-family:Arial,Helvetica,sans-serif; line-height:1.5;
+    background-color:var(--papel);
+    background-image:radial-gradient(rgba(63,90,58,.18) 1.2px, transparent 1.3px);
+    background-size:18px 18px;
+    min-height:100vh;
+  }
+  .wrap{max-width:640px; margin:0 auto; padding:24px 16px 64px}
+  header{display:flex; align-items:center; gap:14px; padding-bottom:16px; border-bottom:3px solid var(--nogal)}
+  header img{width:56px; height:56px; border-radius:6px}
+  header h1{font-family:Georgia,serif; font-weight:normal; font-size:1.7rem; margin:0; line-height:1.1}
+  header p{margin:2px 0 0; font-size:.78rem; letter-spacing:.06em; text-transform:uppercase; color:var(--cuero)}
+  h2{font-family:Georgia,serif; font-weight:normal; font-size:1.25rem; margin:28px 0 10px}
+  .card{background:var(--papel); border:1px solid rgba(42,31,23,.18); border-radius:6px; padding:16px; margin-top:18px}
+  label{display:block; font-size:.85rem; font-weight:bold; margin-bottom:6px}
+  .ayuda{font-size:.8rem; color:var(--cuero); margin:6px 0 0}
+  textarea,input[type=text]{
+    width:100%; font:inherit; font-size:16px; color:var(--nogal); background:#fff;
+    border:1px solid rgba(42,31,23,.3); border-radius:4px; padding:10px;
+  }
+  textarea:focus,input:focus,select:focus{outline:3px solid var(--salvia); outline-offset:1px}
+  select{font:inherit; font-size:16px; padding:8px; border-radius:4px; border:1px solid rgba(42,31,23,.3); background:#fff; color:var(--nogal); max-width:100%}
+
+  /* Grabación */
+  .grabador{text-align:center; padding:28px 0 8px}
+  .mic{
+    width:132px; height:132px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--nogal); color:var(--papel); display:inline-flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 8px rgba(42,31,23,.08); transition:background .2s;
+  }
+  .mic svg{width:56px; height:56px}
+  .mic:active{transform:scale(.97)}
+  .grabando .mic{background:var(--musgo); animation:pulso 1.4s ease-in-out infinite}
+  @keyframes pulso{0%,100%{box-shadow:0 0 0 8px rgba(63,90,58,.25)}50%{box-shadow:0 0 0 22px rgba(63,90,58,.06)}}
+  .tiempo{font-family:Georgia,serif; font-size:2rem; margin:14px 0 4px; font-variant-numeric:tabular-nums}
+  .estado-grab{font-size:.9rem; color:var(--cuero); min-height:1.4em}
+  .stop{
+    display:none; margin:14px auto 0; width:64px; height:64px; border-radius:8px; border:none; cursor:pointer;
+    background:var(--lacre); align-items:center; justify-content:center;
+  }
+  .stop span{display:block; width:24px; height:24px; background:var(--papel); border-radius:2px}
+  .grabando .stop{display:flex}
+  .cargar{display:block; margin:18px auto 0; background:none; border:none; color:var(--cuero); text-decoration:underline; font:inherit; font-size:.9rem; cursor:pointer; padding:8px}
+
+  .btn{
+    display:inline-block; font:inherit; font-weight:bold; font-size:1rem; cursor:pointer;
+    background:var(--nogal); color:var(--papel); border:none; border-radius:4px; padding:14px 18px; min-height:48px;
+  }
+  .btn.sec{background:transparent; color:var(--nogal); border:2px solid var(--nogal)}
+  .btn:disabled{opacity:.5; cursor:default}
+  .ancho{width:100%}
+  .oculto{display:none !important}
+
+  .progreso{margin-top:18px; padding:14px; border-left:4px solid var(--musgo); background:rgba(180,200,168,.35); font-size:.92rem}
+  .barra{height:6px; background:rgba(42,31,23,.12); border-radius:3px; margin-top:8px; overflow:hidden}
+  .barra i{display:block; height:100%; width:0; background:var(--musgo); transition:width .3s}
+  .error{border-left-color:var(--lacre); background:rgba(138,61,43,.1)}
+
+  /* Hablantes */
+  .hablante{border:1px solid rgba(42,31,23,.18); border-radius:4px; padding:12px; margin:10px 0; background:#fff}
+  .hablante q{display:block; font-family:Georgia,serif; font-style:italic; color:var(--cuero); margin:6px 0 10px; font-size:.95rem}
+  .hablante .fila{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .hablante audio{height:36px; max-width:100%}
+
+  /* Revisión */
+  .comp{border:1px solid var(--salvia); border-radius:4px; padding:12px; margin:10px 0; background:#fff}
+  .comp.dudoso{border:2px solid var(--cuero)}
+  .comp .fila{display:flex; gap:8px; align-items:center}
+  .comp .fila input[type=checkbox]{width:24px; height:24px; flex:none; accent-color:var(--musgo)}
+  .comp .resp{max-width:38%}
+  .comp q{display:block; font-family:Georgia,serif; font-style:italic; font-size:.9rem; color:var(--cuero); margin-top:8px}
+  .aviso{display:block; font-size:.8rem; color:var(--lacre); font-weight:bold; margin-top:6px}
+
+  details{margin-top:18px}
+  summary{cursor:pointer; font-weight:bold; padding:8px 0}
+  .transcripcion{white-space:pre-wrap; font-size:.92rem; background:#fff; border:1px solid rgba(42,31,23,.18); border-radius:4px; padding:12px; max-height:420px; overflow:auto}
+  #resumen{min-height:220px; font-size:15px}
+  footer{margin-top:40px; font-size:.75rem; color:var(--cuero); text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="icono.svg" alt="">
+    <div>
+      <h1>Actas</h1>
+      <p>Junto · Círculo de Ciencias Políticas · UCEMA</p>
+    </div>
+  </header>
+
+  <!-- 1. Asistentes y grabación -->
+  <section id="paso1">
+    <div class="card">
+      <label for="asistentes">Asistentes (opcional)</label>
+      <input type="text" id="asistentes" placeholder="Martina López, Juan Pérez, Sofía Ruiz" autocomplete="off">
+      <p class="ayuda">Separados por coma. Sirven para escribir bien los nombres y para asignar las voces.</p>
+    </div>
+
+    <div class="grabador" id="grabador">
+      <button class="mic" id="mic" aria-label="Empezar a grabar">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15Zm6-3.5a1 1 0 1 0-2 0 4 4 0 0 1-8 0 1 1 0 1 0-2 0 6 6 0 0 0 5 5.91V20H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-2.59a6 6 0 0 0 5-5.91Z"/></svg>
+      </button>
+      <div class="tiempo" id="tiempo">00:00</div>
+      <div class="estado-grab" id="estadoGrab">Tocá el micrófono para empezar</div>
+      <button class="stop" id="stop" aria-label="Terminar grabación"><span></span></button>
+      <button class="cargar" id="cargarBtn">o cargar un audio</button>
+      <input type="file" id="archivo" accept="audio/*,video/*" class="oculto">
+    </div>
+  </section>
+
+  <div class="progreso oculto" id="progreso">
+    <div id="progresoTxt">Preparando…</div>
+    <div class="barra"><i id="barra"></i></div>
+  </div>
+
+  <!-- 2. Quién es quién -->
+  <section id="paso2" class="oculto">
+    <h2>¿Quién habló?</h2>
+    <p class="ayuda">Escuchá o leé una frase de cada voz y elegí quién es.</p>
+    <div id="listaHablantes"></div>
+    <button class="btn ancho" id="analizar">Analizar la reunión</button>
+  </section>
+
+  <!-- 3. Revisión -->
+  <section id="paso3" class="oculto">
+    <h2>Revisá antes de enviar</h2>
+    <label for="temas">Temas (uno por línea)</label>
+    <textarea id="temas" rows="3"></textarea>
+    <h2>Compromisos</h2>
+    <p class="ayuda">Cada compromiso muestra la frase en la que se basa. Corregí lo que haga falta y tildá los correctos. Los marcados en marrón conviene revisarlos.</p>
+    <div id="compromisos"></div>
+    <button class="btn ancho" id="armar">Armar mensaje</button>
+  </section>
+
+  <!-- 4. Mensaje -->
+  <section id="paso4" class="oculto">
+    <h2>Mensaje para WhatsApp</h2>
+    <textarea id="resumen" aria-label="Mensaje para WhatsApp"></textarea>
+    <p><button class="btn ancho" id="copiar">Copiar para WhatsApp</button></p>
+    <p><button class="btn sec ancho" id="nueva">Nueva reunión</button></p>
+  </section>
+
+  <details id="detTranscripcion" class="oculto">
+    <summary>Transcripción completa</summary>
+    <div class="transcripcion" id="transcripcion"></div>
+    <p><button class="btn sec" id="copiarTrans">Copiar transcripción</button></p>
+  </details>
+
+  <footer>Pensar en voz alta.</footer>
+</div>
+
+<script type="module">
+// ⚠️ Pegá acá la dirección de tu Cloudflare Worker
+const WORKER = "https://TU-WORKER.workers.dev";
+
+const TRANSFORMERS = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.1";
+const MODELO_WHISPER = "onnx-community/whisper-small";
+const MODELO_VOCES = "onnx-community/pyannote-segmentation-3.0";
+
+const $ = id => document.getElementById(id);
+let grabador, trozos = [], inicio, reloj, wakeLock, audio16k, segmentos = [], textoFinal = "";
+
+/* ---------- Progreso ---------- */
+function estado(txt, pct, error = false) {
+  $("progreso").classList.toggle("oculto", !txt);
+  $("progreso").classList.toggle("error", error);
+  $("progresoTxt").textContent = txt || "";
+  $("barra").style.width = (pct ?? 0) + "%";
+}
+
+/* ---------- Grabación ---------- */
+$("mic").onclick = async () => {
+  if (grabador?.state === "recording") return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    trozos = [];
+    grabador = new MediaRecorder(stream);
+    grabador.ondataavailable = e => e.data.size && trozos.push(e.data);
+    grabador.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      procesar(new Blob(trozos, { type: grabador.mimeType || "audio/webm" }));
+    };
+    grabador.start(1000);
+    inicio = Date.now();
+    $("grabador").classList.add("grabando");
+    $("estadoGrab").textContent = "Grabando… tocá el cuadrado para terminar";
+    $("cargarBtn").classList.add("oculto");
+    reloj = setInterval(() => {
+      const s = Math.floor((Date.now() - inicio) / 1000);
+      $("tiempo").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+    }, 500);
+    try { wakeLock = await navigator.wakeLock?.request("screen"); } catch {}
+  } catch (e) {
+    $("estadoGrab").textContent = "No se pudo acceder al micrófono. Revisá los permisos del navegador.";
+  }
+};
+
+$("stop").onclick = () => {
+  if (grabador?.state !== "recording") return;
+  clearInterval(reloj);
+  grabador.stop();
+  wakeLock?.release?.();
+  $("grabador").classList.remove("grabando");
+  $("estadoGrab").textContent = "Grabación terminada";
+};
+
+$("cargarBtn").onclick = () => $("archivo").click();
+$("archivo").onchange = e => e.target.files[0] && procesar(e.target.files[0]);
+
+/* ---------- Audio a 16 kHz mono ---------- */
+async function decodificar(blob) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+  const buf = await ctx.decodeAudioData(await blob.arrayBuffer());
+  const datos = buf.numberOfChannels > 1
+    ? buf.getChannelData(0).map((v, i) => (v + buf.getChannelData(1)[i]) / 2)
+    : buf.getChannelData(0);
+  ctx.close();
+  return datos;
+}
+
+/* ---------- Transcripción + voces ---------- */
+async function procesar(blob) {
+  $("paso1").classList.add("oculto");
+  try {
+    estado("Leyendo el audio…", 5);
+    audio16k = await decodificar(blob);
+    window.audioOriginal = URL.createObjectURL(blob);
+
+    const T = await import(TRANSFORMERS);
+    const device = navigator.gpu ? "webgpu" : "wasm";
+    const descargas = {};
+    const avance = base => p => {
+      if (p.status === "progress" && p.total) {
+        descargas[p.file] = p.loaded / p.total;
+        const v = Object.values(descargas);
+        estado("Descargando el modelo (solo la primera vez)…", base + 20 * v.reduce((a, b) => a + b, 0) / v.length);
+      }
+    };
+
+    estado("Descargando el modelo (solo la primera vez)…", 10);
+    const whisper = await T.pipeline("automatic-speech-recognition", MODELO_WHISPER, {
+      device, dtype: device === "webgpu" ? { encoder_model: "fp32", decoder_model_merged: "q4" } : "q8",
+      progress_callback: avance(10)
+    });
+
+    estado("Transcribiendo… puede tardar varios minutos", 35);
+    const res = await whisper(audio16k, {
+      language: "spanish", task: "transcribe",
+      chunk_length_s: 30, stride_length_s: 5, return_timestamps: true
+    });
+    const trozosTexto = (res.chunks || [{ text: res.text, timestamp: [0, audio16k.length / 16000] }])
+      .filter(c => c.text.trim());
+
+    estado("Separando las voces…", 75);
+    let voces = [];
+    try {
+      const proc = await T.AutoProcessor.from_pretrained(MODELO_VOCES);
+      const modelo = await T.AutoModelForAudioFrameClassification.from_pretrained(MODELO_VOCES, { device: "wasm" });
+      const { logits } = await modelo(await proc(audio16k));
+      voces = proc.post_process_speaker_diarization(logits, audio16k.length)[0];
+    } catch (e) { console.warn("Separación de voces no disponible:", e); }
+
+    // Cada fragmento de texto va a la voz con más superposición
+    segmentos = trozosTexto.map(c => {
+      const [a, b] = [c.timestamp[0] ?? 0, c.timestamp[1] ?? c.timestamp[0] + 5];
+      let mejor = 0, max = 0;
+      voces.forEach(v => {
+        const s = Math.min(b, v.end) - Math.max(a, v.start);
+        if (s > max) { max = s; mejor = v.id; }
+      });
+      return { hablante: mejor, texto: c.text.trim(), inicio: a, fin: b };
+    });
+
+    estado("", 100);
+    mostrarHablantes();
+  } catch (e) {
+    console.error(e);
+    estado("Algo falló al procesar el audio: " + e.message + ". Probá con Chrome actualizado o con un audio más corto.", 0, true);
+    $("paso1").classList.remove("oculto");
+  }
+}
+
+/* ---------- Asignar nombres ---------- */
+function mostrarHablantes() {
+  const ids = [...new Set(segmentos.map(s => s.hablante))];
+  const nombres = $("asistentes").value.split(",").map(n => n.trim()).filter(Boolean);
+  const opciones = `<option value="">Hablante sin nombre</option>` + nombres.map(n => `<option>${esc(n)}</option>`).join("") + `<option value="__otro">Otro…</option>`;
+
+  $("listaHablantes").innerHTML = ids.map(h => {
+    const ej = segmentos.filter(s => s.hablante === h).sort((a, b) => b.texto.length - a.texto.length)[0];
+    return `<div class="hablante">
+      <strong>Hablante ${h + 1}</strong>
+      <q>${esc(ej.texto.slice(0, 180))}</q>
+      <div class="fila">
+        <select data-h="${h}">${opciones}</select>
+        <button class="btn sec" data-play="${ej.inicio}" data-fin="${ej.fin}" type="button">▶ Escuchar</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  document.querySelectorAll("#listaHablantes select").forEach(s => s.onchange = () => {
+    if (s.value === "__otro") {
+      const n = prompt("Nombre:");
+      if (n) { s.insertAdjacentHTML("beforeend", `<option selected>${esc(n)}</option>`); } else s.value = "";
+    }
+  });
+  const reproductor = new Audio(window.audioOriginal);
+  document.querySelectorAll("[data-play]").forEach(b => b.onclick = () => {
+    reproductor.currentTime = +b.dataset.play;
+    reproductor.play();
+    clearTimeout(reproductor._t);
+    reproductor._t = setTimeout(() => reproductor.pause(), Math.max(3000, (b.dataset.fin - b.dataset.play) * 1000));
+  });
+
+  // Con una sola voz no hace falta este paso
+  if (ids.length <= 1 && !nombres.length) { $("analizar").click(); return; }
+  $("paso2").classList.remove("oculto");
+}
+
+/* ---------- Análisis con Gemini (vía Worker) ---------- */
+$("analizar").onclick = async () => {
+  const mapa = {};
+  document.querySelectorAll("#listaHablantes select").forEach(s =>
+    mapa[s.dataset.h] = s.value && s.value !== "__otro" ? s.value : `Hablante ${+s.dataset.h + 1}`);
+
+  textoFinal = segmentos.reduce((acc, s, i) => {
+    const n = mapa[s.hablante] || `Hablante ${s.hablante + 1}`;
+    return acc + (i && segmentos[i - 1].hablante === s.hablante ? " " : `\n\n${n}: `) + s.texto;
+  }, "").trim();
+  $("transcripcion").textContent = textoFinal;
+  $("detTranscripcion").classList.remove("oculto");
+  $("paso2").classList.add("oculto");
+
+  estado("Analizando la reunión…", 50);
+  const prompt = `Sos el secretario de actas de Junto, Círculo de Ciencias Políticas de la UCEMA.
+Asistentes: ${$("asistentes").value || "no informados"}. Corregí la ortografía de esos nombres si la transcripción los deforma.
+Devolvé SOLO un JSON válido, sin texto adicional, con esta forma:
+{"temas":["tema breve"],"compromisos":[{"responsable":"Nombre","tarea":"qué hará","plazo":"si se dijo, si no vacío","cita":"frase TEXTUAL de la transcripción que lo respalda","dudoso":false}]}
+Reglas: máximo 3 temas, cada uno en pocas palabras. Un compromiso existe cuando alguien dice "yo me encargo", "lo hago yo" o similar, y se atribuye a quien habla; también cuando se le asigna una tarea a alguien por su nombre.
+Marcá "dudoso": true si el responsable es un "Hablante N" sin nombre, si la frase es ambigua o si no estás seguro.
+La cita debe copiarse literal. No inventes tareas ni nombres.
+
+Transcripción:
+${textoFinal}`;
+
+  try {
+    const r = await fetch(WORKER, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt })
+    });
+    const j = await r.json();
+    if (!j.texto) throw new Error(j.error || "sin respuesta");
+    const datos = JSON.parse(j.texto.match(/\{[\s\S]*\}/)[0]);
+    mostrarRevision(datos);
+    estado("");
+  } catch (e) {
+    console.error(e);
+    estado("No se pudo analizar la reunión (" + e.message + "). Revisá la conexión y volvé a intentar.", 0, true);
+    $("paso2").classList.remove("oculto");
+  }
+};
+
+/* ---------- Revisión ---------- */
+function mostrarRevision(datos) {
+  const norm = t => (t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+  const base = norm(textoFinal);
+  const comps = (datos.compromisos || []).map(c => {
+    c.citaNoEncontrada = !c.cita || !base.includes(norm(c.cita).slice(0, 40));
+    if (c.citaNoEncontrada) c.dudoso = true;
+    return c;
+  });
+
+  $("temas").value = (datos.temas || []).join("\n");
+  $("compromisos").innerHTML = comps.length ? comps.map(c => `
+    <div class="comp ${c.dudoso ? "dudoso" : ""}">
+      <div class="fila">
+        <input type="checkbox" ${c.dudoso ? "" : "checked"} aria-label="Incluir">
+        <input type="text" class="resp" value="${esc(c.responsable)}" aria-label="Responsable">
+        <input type="text" class="tarea" value="${esc(c.tarea + (c.plazo ? " (" + c.plazo + ")" : ""))}" aria-label="Tarea">
+      </div>
+      <q>${esc(c.cita || "Sin cita")}</q>
+      ${c.citaNoEncontrada ? '<span class="aviso">La cita no aparece en la transcripción: revisar</span>'
+        : c.dudoso ? '<span class="aviso">Responsable o tarea dudosos: revisar</span>' : ""}
+    </div>`).join("")
+    : '<p class="ayuda">No se detectaron compromisos.</p>';
+  $("paso3").classList.remove("oculto");
+}
+
+$("armar").onclick = () => {
+  const hoy = new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" });
+  const temas = $("temas").value.split("\n").map(t => t.trim()).filter(Boolean).map(t => `• ${t}`).join("\n");
+  const comps = [...document.querySelectorAll(".comp")]
+    .filter(d => d.querySelector("input[type=checkbox]").checked)
+    .map(d => `• ${d.querySelector(".resp").value.trim()}: ${d.querySelector(".tarea").value.trim()}`).join("\n");
+  $("resumen").value = `*Reunión · ${hoy}*\n\n*Temas*\n${temas || "• Sin temas"}\n\n*Compromisos*\n${comps || "• Sin compromisos"}`;
+  $("paso4").classList.remove("oculto");
+  $("paso4").scrollIntoView({ behavior: "smooth" });
+};
+
+async function copiar(texto, boton, etiqueta) {
+  try { await navigator.clipboard.writeText(texto); }
+  catch { const t = document.createElement("textarea"); t.value = texto; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); }
+  boton.textContent = "¡Copiado!";
+  setTimeout(() => boton.textContent = etiqueta, 2000);
+}
+$("copiar").onclick = () => copiar($("resumen").value, $("copiar"), "Copiar para WhatsApp");
+$("copiarTrans").onclick = () => copiar(textoFinal, $("copiarTrans"), "Copiar transcripción");
+$("nueva").onclick = () => location.reload();
+
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>
