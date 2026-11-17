@@ -37,5 +37,5 @@ La primera vez descarga los modelos (unos cientos de MB): conviene wifi. Despué
 |---|---|
 | `index.html` | La app |
 | `manifest.json`, `sw.js` | Instalación como app |
-| `icono.svg`, `icono-*.png`, `apple-touch-icon.png` | Ícono (las tres hebras en los colores de las secretarías) |
+| `icono-*.png`, `apple-touch-icon.png`, `favicon.png`, `junto-avatar-nogal.png` | Ícono: avatar oficial de Junto (fondo nogal) |
 | `worker/worker.js` | Código del Cloudflare Worker |

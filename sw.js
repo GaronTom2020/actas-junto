@@ -1,6 +1,6 @@
 // Subí este número (v2, v3…) cada vez que cambies algo, para que los teléfonos se actualicen.
 const CACHE = "actas-junto-v1";
-const ARCHIVOS = ["./", "./index.html", "./manifest.json", "./icono.svg",
+const ARCHIVOS = ["./", "./index.html", "./manifest.json", "./favicon.png",
   "./icono-192.png", "./icono-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
